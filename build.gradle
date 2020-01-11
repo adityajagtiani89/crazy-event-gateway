@@ -26,7 +26,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    implementation ("org.springframework.boot:spring-boot-starter-web")
+    // https://mvnrepository.com/artifact/org.springframework.batch/spring-batch-core
+    compile group: 'org.springframework.batch', name: 'spring-batch-core', version: '4.2.1.RELEASE'
+    implementation ('org.springframework.boot:spring-boot-starter-test')
 }
 

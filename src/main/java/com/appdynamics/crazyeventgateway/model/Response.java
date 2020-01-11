@@ -13,4 +13,5 @@ package com.appdynamics.crazyeventgateway.model;
 
 
 public class Response {
+
 }

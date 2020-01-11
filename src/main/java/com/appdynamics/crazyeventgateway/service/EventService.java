@@ -11,14 +11,12 @@ package com.appdynamics.crazyeventgateway.service;
  * @author Aditya Jagtiani
  */
 
-import com.appdynamics.crazyeventgateway.model.Event;
 import com.appdynamics.crazyeventgateway.model.Events;
-
-import java.util.List;
+import com.appdynamics.crazyeventgateway.model.Response;
 
 public interface EventService {
 
-    Events createEvents(Events events);
+    Response createEvents(Events events) throws Exception;
 
     Events getEvents();
 }

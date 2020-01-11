@@ -5,13 +5,11 @@ package com.appdynamics.crazyeventgateway.controller;
  */
 
 import com.appdynamics.crazyeventgateway.model.Events;
+import com.appdynamics.crazyeventgateway.model.Response;
 import com.appdynamics.crazyeventgateway.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -30,7 +28,8 @@ public class EventController {
     }
 
     @RequestMapping(value = "events", method = RequestMethod.POST)
-    public Events create(@Valid @RequestBody Events events) {
+    @ResponseStatus
+    public Response create(@Valid @RequestBody Events events) throws Exception {
         return eventService.createEvents(events);
     }
 

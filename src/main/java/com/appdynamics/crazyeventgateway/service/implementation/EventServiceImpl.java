@@ -6,24 +6,36 @@ package com.appdynamics.crazyeventgateway.service.implementation;
 
 import com.appdynamics.crazyeventgateway.model.Event;
 import com.appdynamics.crazyeventgateway.model.Events;
+import com.appdynamics.crazyeventgateway.model.Response;
 import com.appdynamics.crazyeventgateway.repository.EventRepository;
 import com.appdynamics.crazyeventgateway.service.EventService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.io.FileOutputStream;
 
+@Service
 public class EventServiceImpl implements EventService {
-    @Autowired
-    private EventRepository eventRepository;
+    ObjectMapper mapper = new ObjectMapper();
+
 
     @Override
-    public Events createEvents(Events events) {
-        return eventRepository.createEvents(events);
+    public Response createEvents(Events events) throws Exception {
+        for (Event event : events.getEvents()) {
+            // Save JSON string to file
+            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/events.json", true);
+            mapper.writeValue(fileOutputStream, event);
+            fileOutputStream.close();
+        }
+
+        //TODO: return all events from file
+        return new Response();
     }
 
     @Override
     public Events getEvents() {
-        return eventRepository.getEvents();
+        return new Events();
     }
 
 }

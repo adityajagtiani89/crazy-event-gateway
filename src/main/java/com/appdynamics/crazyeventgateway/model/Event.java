@@ -6,26 +6,22 @@ package com.appdynamics.crazyeventgateway.model;
 import javax.validation.constraints.NotEmpty;
 
 public class Event {
+    @NotEmpty(message = "Please enter a valid event type (E1, E2, E3, E4")
+    private EventType eventType;
+
+    @NotEmpty(message = "Please enter a name for your event")
+    private String name;
 
     public EventType getEventType() {
         return eventType;
-    }
-
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Event(EventType eventType, String name) {
+        this.eventType = eventType;
         this.name = name;
     }
-
-    @NotEmpty(message = "Please enter a valid event type (E1, E2, E3, E4")
-    private EventType eventType;
-
-    @NotEmpty(message = "Please enter a name for your event")
-    private String name;
 }
