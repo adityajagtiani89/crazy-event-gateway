@@ -1,4 +1,4 @@
-maxRequestsPerMinute:
+maxRequestsPerMinute: 1
 
-maxRequestsPerHour:
+maxRequestsPerHour: 3
 
