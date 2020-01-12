@@ -27,8 +27,10 @@ targetCompatibility = 1.8
 
 dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-web")
-    // https://mvnrepository.com/artifact/org.springframework.batch/spring-batch-core
-    compile group: 'org.springframework.batch', name: 'spring-batch-core', version: '4.2.1.RELEASE'
+    implementation (group: 'org.springframework.batch', name: 'spring-batch-core', version: '4.2.1.RELEASE')
     implementation ('org.springframework.boot:spring-boot-starter-test')
+    implementation (group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.10.1')
+    implementation (group: 'org.yaml', name: 'snakeyaml', version: '1.8')
+
 }
 

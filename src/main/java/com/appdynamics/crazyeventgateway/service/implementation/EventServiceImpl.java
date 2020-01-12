@@ -7,10 +7,8 @@ package com.appdynamics.crazyeventgateway.service.implementation;
 import com.appdynamics.crazyeventgateway.model.Event;
 import com.appdynamics.crazyeventgateway.model.Events;
 import com.appdynamics.crazyeventgateway.model.Response;
-import com.appdynamics.crazyeventgateway.repository.EventRepository;
 import com.appdynamics.crazyeventgateway.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
