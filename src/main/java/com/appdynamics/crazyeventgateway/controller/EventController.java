@@ -30,6 +30,7 @@ public class EventController {
     @Value("${ratelimiter.maxRequestsPerMinute}")
     private int minLimit;
 
+    @Autowired
     private APIRateLimiter apiRateLimiter;
 
     @RequestMapping("/")
@@ -41,13 +42,12 @@ public class EventController {
     @RequestMapping(value = "events", method = RequestMethod.POST)
     @ResponseStatus
     public void create(@Valid @RequestBody Events events) throws Exception {
-        LOGGER.debug("Ingesting event");
+        LOGGER.info("Attempting to ingest {} events", events.getEvents().size());
         apiRateLimiter = APIRateLimiter.getInstance();
         if (apiRateLimiter.allowRequest()) {
             eventService.createEvents(events);
         }
         //todo: Create error message with rate rejection and return
         //todo: Add logger to project
-       // return new Response();
     }
 }

@@ -5,7 +5,6 @@ package com.appdynamics.crazyeventgateway.ratelimiting;
  */
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -13,16 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.appdynamics.crazyeventgateway.util.CrazyEventGatewayUtils.readValueFromConfig;
-
-
+@Component
 public class APIRateLimiter {
 
     @Value("${ratelimiter.maxRequestsPerMinute}")
-    private int maxRequestsPerMinute = 2;
+    private int maxRequestsPerMinute;
 
     @Value("${ratelimiter.maxRequestsPerHour}")
-    private int maxRequestsPerHour = 5;
+    private int maxRequestsPerHour;
 
     private final ConcurrentMap<Long, Integer> hourWindow = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Integer> minuteWindow = new ConcurrentHashMap<>();
