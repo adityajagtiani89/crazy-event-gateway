@@ -15,11 +15,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class APIRateLimiter {
 
-    @Value("${ratelimiter.maxRequestsPerMinute}")
-    private int maxRequestsPerMinute;
-
-    @Value("${ratelimiter.maxRequestsPerHour}")
-    private int maxRequestsPerHour;
+    private int maxRequestsPerMinute = 3;
+    private int maxRequestsPerHour = 10;
 
     private final ConcurrentMap<Long, Integer> hourWindow = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Integer> minuteWindow = new ConcurrentHashMap<>();

@@ -24,4 +24,9 @@ public class Event {
         this.eventType = eventType;
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "Event Type = " + eventType.name() + ", Event name = " + name + '\n';
+    }
 }
