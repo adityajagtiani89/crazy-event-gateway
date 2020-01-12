@@ -18,6 +18,13 @@ bootJar {
     version =  '1.0.0'
 }
 
+bootRun {
+    if (System.getProperty('debug', 'false') == 'true') {
+        jvmArgs = ["-Xmx2g", "-Xdebug", "-XX:+CMSClassUnloadingEnabled",
+                   "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9000"]
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -33,4 +40,5 @@ dependencies {
     implementation (group: 'org.yaml', name: 'snakeyaml', version: '1.8')
 
 }
+
 

@@ -19,7 +19,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Response createEvents(Events events) throws Exception {
+    public void createEvents(Events events) throws Exception {
         for (Event event : events.getEvents()) {
             // Save JSON string to file
             FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/events.json", true);
@@ -28,12 +28,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //TODO: return all events from file
-        return new Response();
-    }
 
-    @Override
-    public Events getEvents() {
-        return new Events();
     }
 
 }

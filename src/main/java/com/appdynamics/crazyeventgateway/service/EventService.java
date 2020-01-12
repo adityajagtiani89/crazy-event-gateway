@@ -16,7 +16,5 @@ import com.appdynamics.crazyeventgateway.model.Response;
 
 public interface EventService {
 
-    Response createEvents(Events events) throws Exception;
-
-    Events getEvents();
+    void createEvents(Events events) throws Exception;
 }

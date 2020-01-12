@@ -24,7 +24,7 @@ public class CrazyEventGatewayUtils {
     public static int readValueFromConfig(String configName) {
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            File file = new File(classLoader.getResource("config.yaml").getFile());
+            File file = new File(classLoader.getResource("config.yml").getFile());
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
             Map configs = om.readValue(file, Map.class);
             return Integer.parseInt(configs.get(configName).toString());

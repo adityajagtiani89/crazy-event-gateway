@@ -4,7 +4,9 @@ package com.appdynamics.crazyeventgateway.ratelimiting;
  * @author Aditya Jagtiani
  */
 
-import com.appdynamics.crazyeventgateway.util.CrazyEventGatewayUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,31 +15,43 @@ import java.util.concurrent.TimeUnit;
 
 import static com.appdynamics.crazyeventgateway.util.CrazyEventGatewayUtils.readValueFromConfig;
 
+
 public class APIRateLimiter {
 
-    private int maxRequestsPerMinute;
-    private int maxRequestsPerHour;
+    @Value("${ratelimiter.maxRequestsPerMinute}")
+    private int maxRequestsPerMinute = 2;
+
+    @Value("${ratelimiter.maxRequestsPerHour}")
+    private int maxRequestsPerHour = 5;
+
     private final ConcurrentMap<Long, Integer> hourWindow = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Integer> minuteWindow = new ConcurrentHashMap<>();
     private static APIRateLimiter apiRateLimiter;
 
-    private static APIRateLimiter getInstance() {
+    public static APIRateLimiter getInstance() {
         if (apiRateLimiter == null) {
-            apiRateLimiter = new APIRateLimiter(readValueFromConfig("maxRequestsPerHour"),
-                    readValueFromConfig("maxRequestsPerMinute"));
+            apiRateLimiter = new APIRateLimiter();
         }
         return apiRateLimiter;
     }
 
 
-    private APIRateLimiter(int maxRequestsPerHour, int maxRequestsPerMinute) {
-        this.maxRequestsPerHour = maxRequestsPerHour;
-        this.maxRequestsPerMinute = maxRequestsPerMinute;
+    private APIRateLimiter() {
         assert maxRequestsPerHour > maxRequestsPerMinute : "Requests per minute cannot be more than requests per hour";
     }
 
     public boolean allowRequest() {
-        return (isWithinHourlyLimit() && isWithinMinuteLimit());
+        if (!isWithinHourlyLimit()) {
+            return false;
+        }
+        if (!isWithinMinuteLimit()) {
+            //maintaining sync between hr and min limits
+            long hourWindowStartTime = getWindowStartTime(hourWindow);
+            hourWindow.put(hourWindowStartTime, hourWindow.get(hourWindowStartTime) - 1);
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isWithinHourlyLimit() {
