@@ -1,11 +1,3 @@
-/*
- *  Copyright 2020. AppDynamics LLC and its affiliates.
- *  All Rights Reserved.
- *  This is unpublished proprietary source code of AppDynamics LLC and its affiliates.
- *  The copyright notice above does not evidence any actual or intended publication of such source code.
- *
- */
-
 package com.appdynamics.crazyeventgateway.batchprocessing;
 /*
  * @author Aditya Jagtiani
@@ -20,18 +12,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class EventProcessor implements Runnable {
     private static final int BATCH_SIZE_LIMIT = 10;
 
     private boolean _flushPending = false;
-    private List<Event> events;
+    private CopyOnWriteArrayList<Event> events;
+    private List<Event> eventCopy;
 
-    EventProcessor(List<Event> events) {
+    EventProcessor(CopyOnWriteArrayList<Event> events) {
         this.events = events;
+        eventCopy = new ArrayList<>(events);
     }
 
     public void run() {
@@ -44,12 +39,13 @@ public class EventProcessor implements Runnable {
         }
         if (events.size() >= BATCH_SIZE_LIMIT) {
             // timer.cancel();
-            List<List<Event>> batches = Lists.partition(events, BATCH_SIZE_LIMIT);
+            List<List<Event>> batches = Lists.partition(eventCopy, BATCH_SIZE_LIMIT);
             for (List<Event> batch : batches) {
                 if (batch.size() == BATCH_SIZE_LIMIT) {
                     try {
                         List<Event> temp = Lists.newArrayList(batch);
                         flushEvents(temp);
+                        //events.subList(0, BATCH_SIZE_LIMIT - 1).clear();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -58,7 +54,6 @@ public class EventProcessor implements Runnable {
                     //events.clear();
                     //events.addAll(batch);
                     this.events = new CopyOnWriteArrayList<>(batch);
-                    // timer.schedule(timerTask, 3 * 60 * 1000);
                 }
             }
         }
@@ -84,9 +79,26 @@ public class EventProcessor implements Runnable {
 
     }
 
-//    public static Timer timer;
-//    TimerTask timerTask;
+    private void flushAfterDuration() {
+        this._flushPending = true;
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        Runnable task = () -> {
+            System.out.println("Executing Task At " + System.nanoTime());
+            try {
+                EventProcessor.this.flushEvents();
+                this._flushPending = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
 
+        System.out.println("Submitting task at " + System.nanoTime() + " to be executed after 5 seconds.");
+        scheduledExecutorService.schedule(task, 60, TimeUnit.SECONDS);
+        scheduledExecutorService.shutdown();
+    }
+}
+
+/*//    public static Timer timer;
     private void flushAfterDuration() {
         //todo: read this value from application.properties file
         this._flushPending = true;
@@ -104,7 +116,7 @@ public class EventProcessor implements Runnable {
                 },
                 60 * 1000);
     }
-}
+}*/
 
 /*
  * I wanted to clarify one more thing. Let's say we receive 999 requests of type E1 at 1:01:01 and 2 requests of type E1 at 1:01:02.
