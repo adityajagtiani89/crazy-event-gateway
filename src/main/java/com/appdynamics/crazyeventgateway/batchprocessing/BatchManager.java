@@ -3,13 +3,11 @@ package com.appdynamics.crazyeventgateway.batchprocessing;
  * @author Aditya Jagtiani
  */
 
-import com.appdynamics.crazyeventgateway.model.Event;
+import com.appdynamics.crazyeventgateway.model.AdTrackingEvent;
 import com.appdynamics.crazyeventgateway.model.EventType;
 import com.google.common.collect.Lists;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +18,10 @@ import java.util.stream.Collectors;
 public class BatchManager {
 
     private static BatchManager batchManager;
-    private static ArrayList<Event> type1;
-    private static ArrayList<Event> type2;
-    private static ArrayList<Event> type3;
-    private static ArrayList<Event> type4;
+    private static ArrayList<AdTrackingEvent> type1;
+    private static ArrayList<AdTrackingEvent> type2;
+    private static ArrayList<AdTrackingEvent> type3;
+    private static ArrayList<AdTrackingEvent> type4;
     private static int maxBatchSize;
     private static long batchFlushTimeout;
     private static Map<EventType, Boolean> shouldCreateNewEventTimers = new ConcurrentHashMap<>();
@@ -48,54 +46,50 @@ public class BatchManager {
 
     private static void initTimerMap() {
         // todo: try a better way to init this map
-        shouldCreateNewEventTimers.put(EventType.E1, true);
-        shouldCreateNewEventTimers.put(EventType.E2, true);
-        shouldCreateNewEventTimers.put(EventType.E3, true);
-        shouldCreateNewEventTimers.put(EventType.E4, true);
+        shouldCreateNewEventTimers.put(EventType.AD_VIEWED, true);
+        shouldCreateNewEventTimers.put(EventType.AD_CLICKED, true);
+        shouldCreateNewEventTimers.put(EventType.AD_DISMISSED, true);
+        shouldCreateNewEventTimers.put(EventType.AD_CONVERTED_CUSTOMER, true);
     }
 
-    private static void resetEventTypeShouldStartTimer(EventType eventType) {
-
-    }
-
-    // Events ingested will be put on the respective kind of events list
-    public void processEvents(List<Event> events) {
+    // AdTrackingEvents ingested will be put on the respective kind of adTrackingEvents list
+    public void processEvents(List<AdTrackingEvent> adTrackingEvents) {
         //todo take this frm properties file
         ExecutorService executorService = Executors.newFixedThreadPool(20);
 
-        Predicate<Event> type = event -> event.getEventType().equals(EventType.E1);
-        type1.addAll(events.stream().filter(type).collect(Collectors.toList()));
+        Predicate<AdTrackingEvent> type = adTrackingEvent -> adTrackingEvent.getEventType().equals(EventType.AD_VIEWED);
+        type1.addAll(adTrackingEvents.stream().filter(type).collect(Collectors.toList()));
 
-        type = event -> event.getEventType().equals(EventType.E2);
-        type2.addAll(events.stream().filter(type).collect(Collectors.toList()));
+        type = adTrackingEvent -> adTrackingEvent.getEventType().equals(EventType.AD_CLICKED);
+        type2.addAll(adTrackingEvents.stream().filter(type).collect(Collectors.toList()));
 
-        type = event -> event.getEventType().equals(EventType.E3);
-        type3.addAll(events.stream().filter(type).collect(Collectors.toList()));
+        type = adTrackingEvent -> adTrackingEvent.getEventType().equals(EventType.AD_DISMISSED);
+        type3.addAll(adTrackingEvents.stream().filter(type).collect(Collectors.toList()));
 
-        type = event -> event.getEventType().equals(EventType.E4);
-        type4.addAll(events.stream().filter(type).collect(Collectors.toList()));
+        type = adTrackingEvent -> adTrackingEvent.getEventType().equals(EventType.AD_CONVERTED_CUSTOMER);
+        type4.addAll(adTrackingEvents.stream().filter(type).collect(Collectors.toList()));
 
         if (type1.size() != 0) {
-            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.E1),EventType.E1));
+            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.AD_VIEWED),EventType.AD_VIEWED));
         }
         if (type2.size() != 0) {
-            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.E2), EventType.E2));
+            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.AD_CLICKED), EventType.AD_CLICKED));
         }
         if (type3.size() != 0) {
-            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.E3), EventType.E3));
+            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.AD_DISMISSED), EventType.AD_DISMISSED));
         }
         if (type4.size() != 0) {
-            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.E4), EventType.E4));
+            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.AD_CONVERTED_CUSTOMER), EventType.AD_CONVERTED_CUSTOMER));
         }
     }
 
     public class BatchProcessor implements Runnable {
-        private List<Event> events;
+        private List<AdTrackingEvent> adTrackingEvents;
         private boolean shouldStartEventTimer;
         private EventType eventType;
 
-        BatchProcessor(List<Event> events, boolean shouldStartEventTimer, EventType eventType) {
-            this.events = events;
+        BatchProcessor(List<AdTrackingEvent> adTrackingEvents, boolean shouldStartEventTimer, EventType eventType) {
+            this.adTrackingEvents = adTrackingEvents;
             this.shouldStartEventTimer = shouldStartEventTimer;
             this.eventType = eventType;
         }
@@ -105,51 +99,50 @@ public class BatchManager {
         }
 
         private void processCurrentEventBatch(boolean shouldStartEventTimer) {
-            List<Event> remainingEvents = new ArrayList<>();
-            List<Event> tempList;
+            List<AdTrackingEvent> remainingAdTrackingEvents = new ArrayList<>();
+            List<AdTrackingEvent> tempList;
             if (shouldStartEventTimer) {
                 this.flushAfterDuration(this.eventType);
             }
-            if (events.size() >= maxBatchSize) {
+            if (adTrackingEvents.size() >= maxBatchSize) {
                 tempList = new ArrayList<>();
-                tempList.addAll(events);
-                List<List<Event>> batches = Lists.partition(tempList, maxBatchSize);
-                flushCompletedBatches(remainingEvents, batches);
-                this.events.clear();
-                this.events.addAll(remainingEvents);
+                tempList.addAll(adTrackingEvents);
+                List<List<AdTrackingEvent>> batches = Lists.partition(tempList, maxBatchSize);
+                flushCompletedBatches(remainingAdTrackingEvents, batches);
+                this.adTrackingEvents.clear();
+                this.adTrackingEvents.addAll(remainingAdTrackingEvents);
             }
         }
 
-        private void flushCompletedBatches(List<Event> remainingEvents, List<List<Event>> batches) {
-            for (List<Event> batch : batches) {
+        private void flushCompletedBatches(List<AdTrackingEvent> remainingAdTrackingEvents, List<List<AdTrackingEvent>> batches) {
+            for (List<AdTrackingEvent> batch : batches) {
                 if (batch.size() == maxBatchSize) {
                     try {
-                        List<Event> temp = Lists.newArrayList(batch);
+                        List<AdTrackingEvent> temp = Lists.newArrayList(batch);
                         flushEvents(temp);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                 } else {
-                    // add overflow batch events to remainingEvents
-                    remainingEvents.addAll(batch);
+                    // add overflow batch adTrackingEvents to remainingAdTrackingEvents
+                    remainingAdTrackingEvents.addAll(batch);
                 }
             }
         }
 
-        private void flushEvents(List<Event> currentBatch) throws IOException {
+        private void flushEvents(List<AdTrackingEvent> currentBatch) throws IOException {
             new EventWriter().write(eventType, currentBatch);
             currentBatch.clear();
         }
 
         private void flushAfterDuration(EventType eventType) {
-            //todo: read this value from application.properties file
             shouldCreateNewEventTimers.put(eventType, false);
             ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
             Runnable task = () -> {
                 System.out.println("Executing Task At " + System.nanoTime());
                 try {
-                    this.flushEvents(this.events);
+                    this.flushEvents(this.adTrackingEvents);
                     shouldCreateNewEventTimers.put(eventType, true);
                 } catch (IOException e) {
                     e.printStackTrace();

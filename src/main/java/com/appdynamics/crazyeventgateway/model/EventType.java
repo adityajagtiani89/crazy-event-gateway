@@ -12,5 +12,5 @@ package com.appdynamics.crazyeventgateway.model;
  */
 
 public enum EventType {
-    E1, E2, E3, E4;
+    AD_VIEWED, AD_CLICKED, AD_DISMISSED, AD_CONVERTED_CUSTOMER;
 }
