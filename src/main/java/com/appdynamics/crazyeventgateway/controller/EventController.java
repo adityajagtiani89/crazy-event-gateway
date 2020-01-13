@@ -8,11 +8,16 @@ import com.appdynamics.crazyeventgateway.model.Events;
 import com.appdynamics.crazyeventgateway.ratelimiting.APIRateLimiter;
 import com.appdynamics.crazyeventgateway.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @EnableAutoConfiguration
@@ -21,30 +26,32 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    @Value("${ratelimiter.maxRequestsPerHour}")
-    private int hourlyLimit;
-
-    @Value("${ratelimiter.maxRequestsPerMinute}")
-    private int minLimit;
-
     @Autowired
     private APIRateLimiter apiRateLimiter;
 
     @RequestMapping("/")
-    //todo health check
     public String home() {
         return "Welcome to the crazy event gateway!";
     }
 
-    @RequestMapping(value = "events", method = RequestMethod.POST)
-    @ResponseStatus
-    public void create(@Valid @RequestBody Events events) throws Exception {
-
-        apiRateLimiter = APIRateLimiter.getInstance();
-        if (apiRateLimiter.allowRequest()) {
-            eventService.createEvents(events);
+    @PostMapping(path = "/events", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Object> ingestEvents(@Valid @RequestBody Events events) {
+        if(events == null) {
+            return ResponseEntity.noContent().build();
         }
-        //todo: Create error message with rate rejection and return
-        //todo: Add logger to project
+        apiRateLimiter = APIRateLimiter.getInstance();
+        if (!apiRateLimiter.allowRequest()) {
+            return ResponseEntity.noContent().build();
+        }
+        try {
+            eventService.createEvents(events);
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .buildAndExpand(events)
+                    .toUri();
+            return ResponseEntity.created(location).build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

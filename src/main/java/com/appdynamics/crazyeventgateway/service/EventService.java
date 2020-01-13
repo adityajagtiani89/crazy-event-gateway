@@ -12,7 +12,6 @@ package com.appdynamics.crazyeventgateway.service;
  */
 
 import com.appdynamics.crazyeventgateway.model.Events;
-import com.appdynamics.crazyeventgateway.model.Response;
 
 public interface EventService {
 
