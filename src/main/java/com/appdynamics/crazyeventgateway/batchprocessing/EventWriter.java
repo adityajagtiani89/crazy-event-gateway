@@ -12,9 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.List;
 
-public class EventWriter {
+class EventWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventWriter.class);
-
     void write(EventType eventType, List<AdTrackingEvent> batchToBeWritten) {
         String path = "src/main/resources/sink/" + eventType.name() + ".log";
         File file = new File(path);
@@ -24,6 +23,7 @@ public class EventWriter {
             for (AdTrackingEvent adTrackingEvent : batchToBeWritten) {
                 outputStream.write(adTrackingEvent.toString().getBytes());
             }
+            LOGGER.info("Successfully published {} events to sink {}", batchToBeWritten.size(), file.getName());
         } catch (FileNotFoundException fe) {
             LOGGER.error("File {} does not exist", file);
         } catch (IOException ex) {

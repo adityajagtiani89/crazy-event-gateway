@@ -7,6 +7,8 @@ package com.appdynamics.crazyeventgateway.controller;
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvents;
 import com.appdynamics.crazyeventgateway.ratelimiting.APIRateLimiter;
 import com.appdynamics.crazyeventgateway.service.AdEventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,6 +26,8 @@ import java.net.URI;
 @EnableAutoConfiguration
 @RequestMapping("api/v1/ads")
 public class AdEventTrackingController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdEventTrackingController.class);
+
     @Autowired
     private AdEventService adEventService;
 
@@ -44,10 +48,12 @@ public class AdEventTrackingController {
     @PostMapping(path = "/events", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Object> ingestEvents(@Valid @RequestBody AdTrackingEvents adTrackingEvents) {
         if(adTrackingEvents == null) {
+            LOGGER.error("Request failed, no events present in request body");
             return ResponseEntity.noContent().build();
         }
         apiRateLimiter = APIRateLimiter.getInstance(hourlyLimit, minLimit);
         if (!apiRateLimiter.allowRequest()) {
+            LOGGER.error("Request failed as API rate limits were hit. Please try again later");
             return ResponseEntity.noContent().build();
         }
         try {
@@ -55,9 +61,11 @@ public class AdEventTrackingController {
             URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                     .buildAndExpand(adTrackingEvents)
                     .toUri();
+            LOGGER.info("Request processed successfully");
             return ResponseEntity.created(location).build();
         }
         catch (Exception e) {
+            LOGGER.error("Bad request, check request body");
             return ResponseEntity.badRequest().build();
         }
     }
