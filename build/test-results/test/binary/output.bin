@@ -1,0 +1,16 @@
+q09:02:42.757 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+˜09:03:52.765 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Hourly limit hit, cannot proceed. Please try again later
+’09:05:02.772 [Test worker] DEBUG com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Adding a new minute window starting at 1578935102
+q09:05:02.773 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+’09:06:12.781 [Test worker] DEBUG com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Adding a new minute window starting at 1578935172
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.782 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.783 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+q09:06:12.783 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Request Permitted
+ž09:06:12.783 [Test worker] INFO com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter - Minute limit hit, cannot proceed. Please try again in a minute

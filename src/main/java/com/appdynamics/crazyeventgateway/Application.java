@@ -3,7 +3,7 @@ package com.appdynamics.crazyeventgateway;
  * @author Aditya Jagtiani
  */
 
-import com.appdynamics.crazyeventgateway.batchprocessing.BatchManager;
+import com.appdynamics.crazyeventgateway.batchprocessor.BatchManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -30,10 +30,8 @@ public class Application {
             BatchManager.getInstance(0, 0).flushImmediately();
         }
 
-        // todo : logging
         // todo: unit tests
         // todo: javadocs
         // todo: write a sensible response to sink
-        // todo: sleep
     }
 }

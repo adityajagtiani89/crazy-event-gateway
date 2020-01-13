@@ -2,3 +2,6 @@ AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N1
 AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N2
 AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N1
 AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N2
+AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N1
+AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N2
+AdTrackingEvent Type = AD_VIEWED, AdTrackingEvent name = E1N2

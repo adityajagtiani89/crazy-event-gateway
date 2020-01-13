@@ -5,7 +5,7 @@ package com.appdynamics.crazyeventgateway.controller;
  */
 
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvents;
-import com.appdynamics.crazyeventgateway.ratelimiting.APIRateLimiter;
+import com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter;
 import com.appdynamics.crazyeventgateway.service.AdEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class AdEventTrackingController {
             return new ResponseEntity<>("SUCCESS", responseHeaders, HttpStatus.ACCEPTED);
         }
         catch (Exception e) {
-            LOGGER.error("Bad request, check request body");
+            LOGGER.error("Bad request, check request body", e);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Bad request, check request body", null);
         }

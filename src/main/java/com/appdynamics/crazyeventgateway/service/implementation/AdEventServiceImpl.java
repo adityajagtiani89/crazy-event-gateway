@@ -3,7 +3,7 @@ package com.appdynamics.crazyeventgateway.service.implementation;
  * @author Aditya Jagtiani
  */
 
-import com.appdynamics.crazyeventgateway.batchprocessing.BatchManager;
+import com.appdynamics.crazyeventgateway.batchprocessor.BatchManager;
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvents;
 import com.appdynamics.crazyeventgateway.service.AdEventService;
 import org.springframework.beans.factory.annotation.Value;
