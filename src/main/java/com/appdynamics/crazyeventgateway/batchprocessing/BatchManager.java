@@ -1,11 +1,3 @@
-/*
- *  Copyright 2020. AppDynamics LLC and its affiliates.
- *  All Rights Reserved.
- *  This is unpublished proprietary source code of AppDynamics LLC and its affiliates.
- *  The copyright notice above does not evidence any actual or intended publication of such source code.
- *
- */
-
 package com.appdynamics.crazyeventgateway.batchprocessing;
 /*
  * @author Aditya Jagtiani
@@ -26,7 +18,6 @@ import java.util.stream.Collectors;
 
 public class BatchManager {
 
-    //todo: figure out how to make this scalable if we add new event types
     private static BatchManager batchManager;
     private static ArrayList<Event> type1;
     private static ArrayList<Event> type2;
@@ -49,7 +40,7 @@ public class BatchManager {
         return batchManager;
     }
 
-    // Events ingested will be put on specific kind of events list
+    // Events ingested will be put on the respective kind of events list
     public void processEvents(List<Event> events) {
         //todo take this frm properties file
         ExecutorService executorService = Executors.newFixedThreadPool(20);
@@ -83,14 +74,6 @@ public class BatchManager {
     public class BatchProcessor implements Runnable {
         private static final int BATCH_SIZE_LIMIT = 10;
 
-        List<Event> getEvents() {
-            return events;
-        }
-
-        public void setEvents(List<Event> events) {
-            this.events = events;
-        }
-
         private List<Event> events;
 
         BatchProcessor(List<Event> events) {
@@ -111,49 +94,37 @@ public class BatchManager {
                 tempList = new ArrayList<>();
                 tempList.addAll(events);
                 List<List<Event>> batches = Lists.partition(tempList, BATCH_SIZE_LIMIT);
-                for (List<Event> batch : batches) {
-                    if (batch.size() == BATCH_SIZE_LIMIT) {
-                        try {
-                            List<Event> temp = Lists.newArrayList(batch);
-                            flushEvents(temp);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                         remainingEvents.addAll(batch);
-                        // timer.schedule(timerTask, 3 * 60 * 1000);
-                    }
-                }
+                flushCompletedBatches(remainingEvents, batches);
                 this.events.clear();
                 this.events.addAll(remainingEvents);
-/*                for (Event event : remainingEvents) {
-                    this.events.add(event);
-                }*/
             }
         }
 
-        private void flushEvents(List<Event> batch) throws IOException {
+        private void flushCompletedBatches(List<Event> remainingEvents, List<List<Event>> batches) {
+            for (List<Event> batch : batches) {
+                if (batch.size() == BATCH_SIZE_LIMIT) {
+                    try {
+                        List<Event> temp = Lists.newArrayList(batch);
+                        flushEvents(temp);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    // add overflow batch events to remainingEvents
+                    remainingEvents.addAll(batch);
+                }
+            }
+        }
+
+        private void flushEvents(List<Event> currentBatch) throws IOException {
             OutputStream outputStream = new FileOutputStream(("src/main/resources/event1.log"), true);
-            for (Event event : batch) {
+            for (Event event : currentBatch) {
                 outputStream.write(event.toString().getBytes());
             }
             outputStream.close();
-            batch.clear();
+            currentBatch.clear();
         }
-
-
-        private void flushEvents() throws IOException {
-            OutputStream outputStream = new FileOutputStream(("src/main/resources/event1.log"), true);
-            for (Event event : getEvents()) {
-                outputStream.write(event.toString().getBytes());
-            }
-            outputStream.close();
-            events.clear();
-        }
-
-//    public static Timer timer;
-//    TimerTask timerTask;
 
         private void flushAfterDuration() {
             //todo: read this value from application.properties file
@@ -163,7 +134,7 @@ public class BatchManager {
             Runnable task = () -> {
                 System.out.println("Executing Task At " + System.nanoTime());
                 try {
-                    this.flushEvents();
+                    this.flushEvents(this.events);
                     BatchManager.getInstance().shouldStartEventTimer = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -171,8 +142,7 @@ public class BatchManager {
             };
 
             System.out.println("Submitting task at " + System.nanoTime() + " to be executed after 5 seconds.");
-            scheduledExecutorService.schedule(task, 20, TimeUnit.SECONDS);
+            scheduledExecutorService.schedule(task, 15, TimeUnit.SECONDS);
         }
     }
-
 }
