@@ -3,6 +3,8 @@ package com.appdynamics.crazyeventgateway;
  * @author Aditya Jagtiani
  */
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
@@ -14,19 +16,16 @@ import java.util.Collections;
 @Configuration
 @PropertySource(value = "classpath:application.properties")
 public class Application {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        //todo: fetch port from config file
         SpringApplication app = new SpringApplication(Application.class);
         app.setDefaultProperties(Collections.singletonMap("server.port", "9000"));
+        LOGGER.info("Starting crazy event gateway on port 9000");
         app.run(args);
     }
 
-    //todo: figure out request response
-    // todo: multiple event types testing
-    // todo: event writer
     // todo : logging
-    // todo: app.properties
     // todo: unit tests
     // todo: javadocs
     // todo: write a sensible response to sink

@@ -24,10 +24,11 @@ public class BatchManager {
     private static ArrayList<Event> type2;
     private static ArrayList<Event> type3;
     private static ArrayList<Event> type4;
-
+    private static int maxBatchSize;
+    private static long batchFlushTimeout;
     private static Map<EventType, Boolean> shouldCreateNewEventTimers = new ConcurrentHashMap<>();
 
-    public static BatchManager getInstance() {
+    public static BatchManager getInstance(int maxEventListSize, long flushDuration) {
         if (batchManager == null) {
             synchronized (BatchManager.class) {
                 if (batchManager == null) {
@@ -36,8 +37,9 @@ public class BatchManager {
                     type2 = new ArrayList<>();
                     type3 = new ArrayList<>();
                     type4 = new ArrayList<>();
-
                     initTimerMap();
+                    maxBatchSize = maxEventListSize;
+                    batchFlushTimeout = flushDuration;
                 }
             }
         }
@@ -88,8 +90,6 @@ public class BatchManager {
     }
 
     public class BatchProcessor implements Runnable {
-        private static final int BATCH_SIZE_LIMIT = 10;
-
         private List<Event> events;
         private boolean shouldStartEventTimer;
         private EventType eventType;
@@ -110,10 +110,10 @@ public class BatchManager {
             if (shouldStartEventTimer) {
                 this.flushAfterDuration(this.eventType);
             }
-            if (events.size() >= BATCH_SIZE_LIMIT) {
+            if (events.size() >= maxBatchSize) {
                 tempList = new ArrayList<>();
                 tempList.addAll(events);
-                List<List<Event>> batches = Lists.partition(tempList, BATCH_SIZE_LIMIT);
+                List<List<Event>> batches = Lists.partition(tempList, maxBatchSize);
                 flushCompletedBatches(remainingEvents, batches);
                 this.events.clear();
                 this.events.addAll(remainingEvents);
@@ -122,7 +122,7 @@ public class BatchManager {
 
         private void flushCompletedBatches(List<Event> remainingEvents, List<List<Event>> batches) {
             for (List<Event> batch : batches) {
-                if (batch.size() == BATCH_SIZE_LIMIT) {
+                if (batch.size() == maxBatchSize) {
                     try {
                         List<Event> temp = Lists.newArrayList(batch);
                         flushEvents(temp);
@@ -157,7 +157,7 @@ public class BatchManager {
             };
 
             System.out.println("Submitting task at " + System.nanoTime() + " to be executed after 30 seconds.");
-            scheduledExecutorService.schedule(task, 30, TimeUnit.SECONDS);
+            scheduledExecutorService.schedule(task, batchFlushTimeout, TimeUnit.SECONDS);
         }
     }
 }

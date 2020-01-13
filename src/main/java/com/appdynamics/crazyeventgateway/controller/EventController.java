@@ -8,6 +8,7 @@ import com.appdynamics.crazyeventgateway.model.Events;
 import com.appdynamics.crazyeventgateway.ratelimiting.APIRateLimiter;
 import com.appdynamics.crazyeventgateway.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,12 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
+    @Value("${app.rate.limiter.maxRequestsPerHour}")
+    private int hourlyLimit;
+
+    @Value("${app.rate.limiter.maxRequestsPerMinute}")
+    private int minLimit;
+
     @Autowired
     private APIRateLimiter apiRateLimiter;
 
@@ -39,7 +46,7 @@ public class EventController {
         if(events == null) {
             return ResponseEntity.noContent().build();
         }
-        apiRateLimiter = APIRateLimiter.getInstance();
+        apiRateLimiter = APIRateLimiter.getInstance(hourlyLimit, minLimit);
         if (!apiRateLimiter.allowRequest()) {
             return ResponseEntity.noContent().build();
         }

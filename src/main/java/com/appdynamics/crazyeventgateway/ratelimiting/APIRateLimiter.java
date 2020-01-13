@@ -15,20 +15,21 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class APIRateLimiter {
 
-    private int maxRequestsPerMinute = 300;
-    private int maxRequestsPerHour = 1000;
+    private static int maxRequestsPerMinute;
+    private static int maxRequestsPerHour;
 
     private final ConcurrentMap<Long, Integer> hourWindow = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Integer> minuteWindow = new ConcurrentHashMap<>();
     private static APIRateLimiter apiRateLimiter;
 
-    public static APIRateLimiter getInstance() {
+    public static APIRateLimiter getInstance(int hourLimit, int minuteLimit) {
         if (apiRateLimiter == null) {
             apiRateLimiter = new APIRateLimiter();
         }
+        maxRequestsPerHour = hourLimit;
+        maxRequestsPerMinute = minuteLimit;
         return apiRateLimiter;
     }
-
 
     private APIRateLimiter() {
         assert maxRequestsPerHour > maxRequestsPerMinute : "Requests per minute cannot be more than requests per hour";
