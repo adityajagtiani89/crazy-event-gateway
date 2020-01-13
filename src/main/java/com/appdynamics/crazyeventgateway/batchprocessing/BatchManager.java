@@ -54,7 +54,6 @@ public class BatchManager {
 
     // AdTrackingEvents ingested will be put on the respective kind of adTrackingEvents list
     public void processEvents(List<AdTrackingEvent> adTrackingEvents) {
-        //todo take this frm properties file
         ExecutorService executorService = Executors.newFixedThreadPool(20);
 
         Predicate<AdTrackingEvent> type = adTrackingEvent -> adTrackingEvent.getEventType().equals(EventType.AD_VIEWED);
