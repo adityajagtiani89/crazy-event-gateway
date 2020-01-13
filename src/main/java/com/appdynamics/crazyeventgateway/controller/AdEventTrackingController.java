@@ -52,7 +52,7 @@ public class AdEventTrackingController {
             return ResponseEntity.noContent().build();
         }
         apiRateLimiter = APIRateLimiter.getInstance(hourlyLimit, minLimit);
-        if (!apiRateLimiter.allowRequest()) {
+        if (!apiRateLimiter.isRequestPermitted()) {
             LOGGER.error("Request failed as API rate limits were hit. Please try again later");
             return ResponseEntity.noContent().build();
         }

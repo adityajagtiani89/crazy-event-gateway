@@ -45,7 +45,7 @@ public class BatchManager {
     }
 
     private static void initTimerMap() {
-        // todo: try a better way to init this map
+        // todo = handle leftover events in case of an exception or service crash
         shouldCreateNewEventTimers.put(EventType.AD_VIEWED, true);
         shouldCreateNewEventTimers.put(EventType.AD_CLICKED, true);
         shouldCreateNewEventTimers.put(EventType.AD_DISMISSED, true);

@@ -23,19 +23,19 @@ public class APIRateLimiter {
     private static APIRateLimiter apiRateLimiter;
 
     public static APIRateLimiter getInstance(int hourLimit, int minuteLimit) {
+        maxRequestsPerHour = hourLimit;
+        maxRequestsPerMinute = minuteLimit;
         if (apiRateLimiter == null) {
             apiRateLimiter = new APIRateLimiter();
         }
-        maxRequestsPerHour = hourLimit;
-        maxRequestsPerMinute = minuteLimit;
         return apiRateLimiter;
     }
 
     private APIRateLimiter() {
-        assert maxRequestsPerHour > maxRequestsPerMinute : "Requests per minute cannot be more than requests per hour";
+        assert maxRequestsPerHour >= maxRequestsPerMinute : "Requests per minute cannot be more than requests per hour";
     }
 
-    public boolean allowRequest() {
+    public boolean isRequestPermitted() {
         if (!isWithinHourlyLimit()) {
             return false;
         }
@@ -45,7 +45,6 @@ public class APIRateLimiter {
             hourWindow.put(hourWindowStartTime, hourWindow.get(hourWindowStartTime) - 1);
             return false;
         }
-
         return true;
     }
 
