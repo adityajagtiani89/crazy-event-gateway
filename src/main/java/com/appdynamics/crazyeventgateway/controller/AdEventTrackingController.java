@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -46,15 +49,17 @@ public class AdEventTrackingController {
     }
 
     @PostMapping(path = "/events", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Object> ingestEvents(@Valid @RequestBody AdTrackingEvents adTrackingEvents) {
-        if(adTrackingEvents == null) {
+    public ResponseEntity<String> ingestEvents(@Valid @RequestBody AdTrackingEvents adTrackingEvents) {
+        if(adTrackingEvents == null || adTrackingEvents.getAdTrackingEvents() == null) {
             LOGGER.error("Request failed, no events present in request body");
-            return ResponseEntity.noContent().build();
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Request failed, no events present in request body", null);
         }
         apiRateLimiter = APIRateLimiter.getInstance(hourlyLimit, minLimit);
         if (!apiRateLimiter.isRequestPermitted()) {
             LOGGER.error("Request failed as API rate limits were hit. Please try again later");
-            return ResponseEntity.noContent().build();
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY, "Request failed as API rate limits were hit. Please try again later", null);
         }
         try {
             adEventService.createEvents(adTrackingEvents);
@@ -62,11 +67,14 @@ public class AdEventTrackingController {
                     .buildAndExpand(adTrackingEvents)
                     .toUri();
             LOGGER.info("Request processed successfully");
-            return ResponseEntity.created(location).build();
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setLocation(location);
+            return new ResponseEntity<>("SUCCESS", responseHeaders, HttpStatus.ACCEPTED);
         }
         catch (Exception e) {
             LOGGER.error("Bad request, check request body");
-            return ResponseEntity.badRequest().build();
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Bad request, check request body", null);
         }
     }
 }

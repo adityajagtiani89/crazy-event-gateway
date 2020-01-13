@@ -7,7 +7,9 @@ import com.appdynamics.crazyeventgateway.batchprocessing.BatchManager;
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvents;
 import com.appdynamics.crazyeventgateway.service.AdEventService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AdEventServiceImpl implements AdEventService {
@@ -20,6 +22,11 @@ public class AdEventServiceImpl implements AdEventService {
 
     @Override
     public void createEvents(AdTrackingEvents adTrackingEvents) {
-        BatchManager.getInstance(maxEventListSize, flushDuration).processEvents(adTrackingEvents.getAdTrackingEvents());
+        try {
+            BatchManager.getInstance(maxEventListSize, flushDuration).processEvents(adTrackingEvents.getAdTrackingEvents());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), ex.getCause());
+        }
     }
 }
