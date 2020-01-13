@@ -3,31 +3,18 @@ package com.appdynamics.crazyeventgateway.service.implementation;
  * @author Aditya Jagtiani
  */
 
-
 import com.appdynamics.crazyeventgateway.batchprocessing.BatchManager;
 import com.appdynamics.crazyeventgateway.model.Events;
 import com.appdynamics.crazyeventgateway.service.EventService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventServiceImpl implements EventService {
-    ObjectMapper mapper = new ObjectMapper();
-
 
     @Override
-    public void createEvents(Events events) throws Exception {
+    public void createEvents(Events events) {
 
         BatchManager.getInstance().processEvents(events.getEvents());
-//        for (Event event : events.getEvents()) {
-////            // Save JSON string to file
-////            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/events.json", true);
-////            mapper.writeValue(fileOutputStream, event);
-////            fileOutputStream.close();
-////        }
-
         //TODO: return all events from file
-
     }
-
 }
