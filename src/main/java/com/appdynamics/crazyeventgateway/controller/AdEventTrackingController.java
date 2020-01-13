@@ -1,9 +1,5 @@
 package com.appdynamics.crazyeventgateway.controller;
 
-/*
- * @author Aditya Jagtiani
- */
-
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvents;
 import com.appdynamics.crazyeventgateway.ratelimiter.APIRateLimiter;
 import com.appdynamics.crazyeventgateway.service.AdEventService;
@@ -25,6 +21,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 
+/**
+ * A web controller for the Crazy Event Gateway
+ *
+ * @author Aditya Jagtiani
+ */
 @RestController
 @EnableAutoConfiguration
 @RequestMapping("api/v1/ads")

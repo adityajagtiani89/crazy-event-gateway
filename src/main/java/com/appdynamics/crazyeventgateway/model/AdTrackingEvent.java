@@ -1,10 +1,14 @@
 package com.appdynamics.crazyeventgateway.model;
-/*
- * @author Aditya Jagtiani
- */
 
 import javax.validation.constraints.NotEmpty;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+/**
+ * Model class for AdTrackingEvent
+ *
+ * @author Aditya Jagtiani
+ */
 public class AdTrackingEvent {
     @NotEmpty(message = "Please enter a valid event type (AD_VIEWED, AD_CLICKED, AD_DISMISSED, AD_CONVERTED_CUSTOMER")
     private EventType eventType;
@@ -27,6 +31,12 @@ public class AdTrackingEvent {
 
     @Override
     public String toString() {
-        return "AdTrackingEvent Type = " + eventType.name() + ", AdTrackingEvent name = " + name + '\n';
+        return "["+currentDateTime()+"]" + "\t AdTrackingEvent Type = " + eventType.name() + ", AdTrackingEvent name = " + name + '\n';
+    }
+
+    private String currentDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+        Date date = new Date(System.currentTimeMillis());
+        return sdf.format(date);
     }
 }

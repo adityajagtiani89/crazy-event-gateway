@@ -1,4 +1,3 @@
-
 package com.appdynamics.crazyeventgateway.ratelimiter;
 
 import org.slf4j.Logger;
@@ -11,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class handles the rate at which the Crazy Event Gateway ingests requests
+ * This class enforces the minute and hourly limits for request sent to the Crazy Event Gateway
  *
  * @author Aditya Jagtiani
  */
@@ -41,7 +40,7 @@ public class APIRateLimiter {
      * The entry point for the rate limiter for every request
      *
      * @return true if an incoming request does not violate the hourly and minute limits
-     *         false if any of the aforementioned limits are hit
+     * false if any of the aforementioned limits are hit
      */
     public boolean isRequestPermitted() {
         if (!isWithinHourlyLimit()) {
@@ -62,25 +61,23 @@ public class APIRateLimiter {
     private boolean isWithinHourlyLimit() {
         long currentRequestTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis());
 
-        if(hourWindow.isEmpty()) {
+        if (hourWindow.isEmpty()) {
             hourWindow.put(currentRequestTimeInMinutes, 1);
             return true;
         }
 
         long hourWindowStartTime = getWindowStartTime(hourWindow);
-        if(currentRequestTimeInMinutes <= hourWindowStartTime + 60) {
+        if (currentRequestTimeInMinutes <= hourWindowStartTime + 60) {
             // request still lies in the same window
-            if(hourWindow.get(hourWindowStartTime) + 1 <= maxRequestsPerHour) {
+            if (hourWindow.get(hourWindowStartTime) + 1 <= maxRequestsPerHour) {
                 // within limits, increment counter and return true
                 hourWindow.put(hourWindowStartTime, hourWindow.get(hourWindowStartTime) + 1);
                 return true;
-            }
-            else {
+            } else {
                 // reject the request as hour limit has been hit
                 return false;
             }
-        }
-        else {
+        } else {
             // request after hour window expires
             hourWindow.clear();
             LOGGER.debug("Adding a new hour window starting at {}", currentRequestTimeInMinutes);
@@ -92,25 +89,23 @@ public class APIRateLimiter {
     private boolean isWithinMinuteLimit() {
         long currentRequestTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        if(minuteWindow.isEmpty()) {
+        if (minuteWindow.isEmpty()) {
             minuteWindow.put(currentRequestTimeInSeconds, 1);
             return true;
         }
 
         long minuteWindowStartTime = getWindowStartTime(minuteWindow);
-        if(currentRequestTimeInSeconds <= minuteWindowStartTime + 60) {
+        if (currentRequestTimeInSeconds <= minuteWindowStartTime + 60) {
             // request still lies in the same window
-            if(minuteWindow.get(minuteWindowStartTime) + 1 <= maxRequestsPerMinute) {
+            if (minuteWindow.get(minuteWindowStartTime) + 1 <= maxRequestsPerMinute) {
                 // within limits, increment counter and return true
                 minuteWindow.put(minuteWindowStartTime, minuteWindow.get(minuteWindowStartTime) + 1);
                 return true;
-            }
-            else {
+            } else {
                 // reject the request as minute limit has been hit
                 return false;
             }
-        }
-        else {
+        } else {
             // request after minute window expires
             minuteWindow.clear();
             LOGGER.debug("Adding a new minute window starting at {}", currentRequestTimeInSeconds);

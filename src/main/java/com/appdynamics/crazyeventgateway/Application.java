@@ -16,6 +16,7 @@ import java.util.Collections;
 @SpringBootApplication
 @Configuration
 @PropertySource(value = "classpath:application.properties")
+
 public class Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
@@ -23,15 +24,11 @@ public class Application {
         try {
             SpringApplication app = new SpringApplication(Application.class);
             app.setDefaultProperties(Collections.singletonMap("server.port", "9000"));
-            LOGGER.info("Starting crazy event gateway on port 9000");
+            LOGGER.info("Starting crazy event gateway!");
             app.run(args);
         } catch (Exception e) {
-            // flush all available events in case of a failure
+            // flush all events present in the gateway in case of a system failure
             BatchManager.getInstance(0, 0).flushImmediately();
         }
-
-        // todo: unit tests
-        // todo: javadocs
-        // todo: write a sensible response to sink
     }
 }
