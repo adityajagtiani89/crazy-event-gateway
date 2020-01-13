@@ -1,0 +1,37 @@
+2020-01-13 01:36:34 [main] DEBUG o.s.web.context.ContextLoader - Published root WebApplicationContext as ServletContext attribute with name [org.springframework.web.context.WebApplicationContext.ROOT]
+2020-01-13 01:36:34 [main] INFO  o.s.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 618 ms
+2020-01-13 01:36:34 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2020-01-13 01:36:34 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in 'requestMappingHandlerMapping'
+2020-01-13 01:36:34 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2020-01-13 01:36:34 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2020-01-13 01:37:11 [http-nio-9000-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2020-01-13 01:37:11 [http-nio-9000-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 4 ms
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - POST "/api/v1/ads/events", parameters={}
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.appdynamics.crazyeventgateway.controller.AdEventTrackingController#ingestEvents(AdTrackingEvents)
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json;charset=UTF-8" to [com.appdynamics.crazyeventgateway.model.AdTrackingEvents@64a4ab32]
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json]
+2020-01-13 01:37:11 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 201 CREATED
+2020-01-13 01:40:57 [main] INFO  c.a.crazyeventgateway.Application - Starting Application on AJ89-M-J3X3 with PID 25666 (/Users/aj89/repos/appdynamics/extensions/crazy-event-gateway/build/classes/java/main started by aj89 in /Users/aj89/repos/appdynamics/extensions/crazy-event-gateway)
+2020-01-13 01:40:57 [main] DEBUG c.a.crazyeventgateway.Application - Running with Spring Boot v2.2.1.RELEASE, Spring v5.2.1.RELEASE
+2020-01-13 01:40:57 [main] INFO  c.a.crazyeventgateway.Application - No active profile set, falling back to default profiles: default
+2020-01-13 01:40:57 [main] DEBUG o.s.web.context.ContextLoader - Published root WebApplicationContext as ServletContext attribute with name [org.springframework.web.context.WebApplicationContext.ROOT]
+2020-01-13 01:40:57 [main] INFO  o.s.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 594 ms
+2020-01-13 01:40:57 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2020-01-13 01:40:58 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in 'requestMappingHandlerMapping'
+2020-01-13 01:40:58 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2020-01-13 01:40:58 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2020-01-13 01:40:58 [main] INFO  c.a.crazyeventgateway.Application - Started Application in 1.107 seconds (JVM running for 1.365)
+2020-01-13 01:41:21 [http-nio-9000-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2020-01-13 01:41:21 [http-nio-9000-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 4 ms
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - POST "/api/v1/ads/events", parameters={}
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.appdynamics.crazyeventgateway.controller.AdEventTrackingController#ingestEvents(AdTrackingEvents)
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json;charset=UTF-8" to [com.appdynamics.crazyeventgateway.model.AdTrackingEvents@743aabaf]
+2020-01-13 01:41:21 [http-nio-9000-exec-1] INFO  c.a.c.c.AdEventTrackingController - Request processed successfully
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json]
+2020-01-13 01:41:21 [http-nio-9000-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 201 CREATED
+2020-01-13 01:41:36 [pool-3-thread-1] INFO  c.a.c.batchprocessing.EventWriter - Successfully published 2 events to sink AD_CLICKED.log
+2020-01-13 01:41:36 [pool-2-thread-1] INFO  c.a.c.batchprocessing.EventWriter - Successfully published 2 events to sink AD_VIEWED.log
