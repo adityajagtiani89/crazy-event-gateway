@@ -1,16 +1,4 @@
-/*
- *  Copyright 2020. AppDynamics LLC and its affiliates.
- *  All Rights Reserved.
- *  This is unpublished proprietary source code of AppDynamics LLC and its affiliates.
- *  The copyright notice above does not evidence any actual or intended publication of such source code.
- *
- */
-
 package com.appdynamics.crazyeventgateway.batchprocessor;
-/*
- * @author Aditya Jagtiani
- */
-
 
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvent;
 import com.appdynamics.crazyeventgateway.model.EventType;
@@ -26,6 +14,11 @@ import java.util.concurrent.TimeUnit;
 
 import static com.appdynamics.crazyeventgateway.batchprocessor.BatchManager.*;
 
+/**
+ * This class ingests incoming events based on the specified batch and time limits
+ *
+ * @author Aditya Jagtiani
+ */
 public class BatchProcessor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchProcessor.class);
     private List<AdTrackingEvent> adTrackingEvents;
@@ -45,30 +38,28 @@ public class BatchProcessor implements Runnable {
 
     private void processCurrentEventBatch() {
         List<AdTrackingEvent> remainingAdTrackingEvents = new ArrayList<>();
-        List<AdTrackingEvent> tempList;
+        List<AdTrackingEvent> currentEventsToBeProcessed;
         if (shouldStartEventTimer) {
-            this.flushAfterDuration(this.eventType);
+            this.flushEventsOnTimeout(this.eventType); // this spawns a new thread that starts a 15 second timer on the current batch
         }
-        if (adTrackingEvents.size() >= maxBatchSize) {
-            tempList = new ArrayList<>();
-            tempList.addAll(adTrackingEvents);
-            LOGGER.debug("Partitioning batch");
-            List<List<AdTrackingEvent>> batches = Lists.partition(tempList, maxBatchSize);
-            flushCompletedBatches(remainingAdTrackingEvents, batches);
+        if (adTrackingEvents.size() >= maxBatchSize) { // checking if the incoming request exceeds the maximum permitted batch size
+            currentEventsToBeProcessed = new ArrayList<>(adTrackingEvents);
+            LOGGER.debug("Batch size limit hit. Partitioning batch");
+            List<List<AdTrackingEvent>> batches = Lists.partition(currentEventsToBeProcessed, maxBatchSize);
+            flushBatchesWhenLimitIsHit(remainingAdTrackingEvents, batches); //flush batch immediately when the max permitted batch size limit is hit
             this.adTrackingEvents.clear();
-            this.adTrackingEvents.addAll(remainingAdTrackingEvents);
+            this.adTrackingEvents.addAll(remainingAdTrackingEvents); //storing only the leftover events from the current request
         }
     }
 
-    private void flushCompletedBatches(List<AdTrackingEvent> remainingAdTrackingEvents, List<List<AdTrackingEvent>> batches) {
+    private void flushBatchesWhenLimitIsHit(List<AdTrackingEvent> remainingAdTrackingEvents, List<List<AdTrackingEvent>> batches) {
         for (List<AdTrackingEvent> batch : batches) {
             if (batch.size() == maxBatchSize) {
                 LOGGER.debug("Max batch size limit hit for current batch. Flushing");
-                List<AdTrackingEvent> temp = Lists.newArrayList(batch);
-                flushEvents(temp);
+                List<AdTrackingEvent> completedBatchToBeFlushed = Lists.newArrayList(batch);
+                flushEvents(completedBatchToBeFlushed);
             } else {
                 LOGGER.debug("Waiting for 15 seconds to flush leftover events from request");
-                // add overflow batch adTrackingEvents to remainingAdTrackingEvents
                 remainingAdTrackingEvents.addAll(batch);
             }
         }
@@ -79,12 +70,12 @@ public class BatchProcessor implements Runnable {
         currentBatch.clear();
     }
 
-    private void flushAfterDuration(EventType eventType) {
+    private void flushEventsOnTimeout(EventType eventType) {
         shouldCreateNewEventTimers.put(eventType, false);
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
             LOGGER.debug("Executing Task At {}", System.nanoTime());
-            this.flushEvents(this.adTrackingEvents);
+            this.flushEvents(this.adTrackingEvents); //flush batch every 15 seconds
             shouldCreateNewEventTimers.put(eventType, true);
 
         };

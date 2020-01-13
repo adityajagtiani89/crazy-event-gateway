@@ -1,7 +1,4 @@
 package com.appdynamics.crazyeventgateway.batchprocessor;
-/*
- * @author Aditya Jagtiani
- */
 
 import com.appdynamics.crazyeventgateway.model.AdTrackingEvent;
 import com.appdynamics.crazyeventgateway.model.EventType;
@@ -15,18 +12,35 @@ import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * This class is responsible for spawning tasks based on incoming event types and initializing their respective timers
+ *
+ * @author Aditya Jagtiani
+ */
 public class BatchManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchManager.class);
     private static BatchManager batchManager;
+
+    //Four lists, one for each type of event
     private static ArrayList<AdTrackingEvent> type1;
     private static ArrayList<AdTrackingEvent> type2;
     private static ArrayList<AdTrackingEvent> type3;
     private static ArrayList<AdTrackingEvent> type4;
+
     static int maxBatchSize;
     static long batchFlushTimeout;
     static Map<EventType, Boolean> shouldCreateNewEventTimers = new ConcurrentHashMap<>();
 
-    public static BatchManager getInstance(int maxEventListSize, long flushDuration) {
+    /**
+     * BatchManager is a singleton as we do not want each request to have it's own batch manager. In this method, we
+     * initialize the BatchManager in thread-safe fashion and some other objects needed for further processing
+     *
+     * @param maxPermittedBatchSize The maximum permitted batch size
+     * @param flushDuration The maximum permitted time duration a batch can reside in the gateway
+     *
+     * @return An instance of BatchManager
+     */
+    public static BatchManager getInstance(int maxPermittedBatchSize, long flushDuration) {
         if (batchManager == null) {
             synchronized (BatchManager.class) {
                 if (batchManager == null) {
@@ -36,7 +50,7 @@ public class BatchManager {
                     type3 = new ArrayList<>();
                     type4 = new ArrayList<>();
                     initTimerMap();
-                    maxBatchSize = maxEventListSize;
+                    maxBatchSize = maxPermittedBatchSize;
                     batchFlushTimeout = flushDuration;
                 }
             }
@@ -44,6 +58,7 @@ public class BatchManager {
         return batchManager;
     }
 
+    //initializing event timers for each event type
     private static void initTimerMap() {
         shouldCreateNewEventTimers.put(EventType.AD_VIEWED, true);
         shouldCreateNewEventTimers.put(EventType.AD_CLICKED, true);
@@ -51,7 +66,12 @@ public class BatchManager {
         shouldCreateNewEventTimers.put(EventType.AD_CONVERTED_CUSTOMER, true);
     }
 
-    // AdTrackingEvents ingested will be put on the respective kind of adTrackingEvents list
+    /**
+     * This method parses the incoming requests, assigns events based to their respective queues based on event type and
+     * starts new tasks per event type
+     *
+     * @param adTrackingEvents A list of incoming events
+     */
     public void processEvents(List<AdTrackingEvent> adTrackingEvents) {
         ExecutorService executorService = Executors.newFixedThreadPool(30);
 
@@ -76,32 +96,43 @@ public class BatchManager {
                 EventType.AD_CONVERTED_CUSTOMER.name());
 
         if (type1.size() != 0) {
-            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.AD_VIEWED), EventType.AD_VIEWED));
+            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.AD_VIEWED),
+                    EventType.AD_VIEWED));
         }
         if (type2.size() != 0) {
-            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.AD_CLICKED), EventType.AD_CLICKED));
+            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.AD_CLICKED),
+                    EventType.AD_CLICKED));
         }
         if (type3.size() != 0) {
-            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.AD_DISMISSED), EventType.AD_DISMISSED));
+            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.AD_DISMISSED),
+                    EventType.AD_DISMISSED));
         }
         if (type4.size() != 0) {
-            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.AD_CONVERTED_CUSTOMER), EventType.AD_CONVERTED_CUSTOMER));
+            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.AD_CONVERTED_CUSTOMER),
+                    EventType.AD_CONVERTED_CUSTOMER));
         }
     }
 
+    /**
+     * This method flushes any existing pending events in case of a system failure
+     */
     public void flushImmediately() {
         ExecutorService executorService = Executors.newFixedThreadPool(20);
         if (type1.size() != 0) {
-            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.AD_VIEWED), EventType.AD_VIEWED));
+            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.AD_VIEWED),
+                    EventType.AD_VIEWED));
         }
         if (type2.size() != 0) {
-            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.AD_CLICKED), EventType.AD_CLICKED));
+            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.AD_CLICKED),
+                    EventType.AD_CLICKED));
         }
         if (type3.size() != 0) {
-            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.AD_DISMISSED), EventType.AD_DISMISSED));
+            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.AD_DISMISSED),
+                    EventType.AD_DISMISSED));
         }
         if (type4.size() != 0) {
-            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.AD_CONVERTED_CUSTOMER), EventType.AD_CONVERTED_CUSTOMER));
+            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.AD_CONVERTED_CUSTOMER),
+                    EventType.AD_CONVERTED_CUSTOMER));
         }
     }
 }

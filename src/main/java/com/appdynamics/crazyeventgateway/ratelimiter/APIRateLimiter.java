@@ -1,8 +1,5 @@
 
 package com.appdynamics.crazyeventgateway.ratelimiter;
-/*
- * @author Aditya Jagtiani
- */
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class handles the rate at which the Crazy Event Gateway ingests requests
+ *
+ * @author Aditya Jagtiani
+ */
 @Component
 public class APIRateLimiter {
     private static final Logger LOGGER = LoggerFactory.getLogger(APIRateLimiter.class);
@@ -35,6 +37,12 @@ public class APIRateLimiter {
         assert maxRequestsPerHour >= maxRequestsPerMinute : "Requests per minute cannot be more than requests per hour";
     }
 
+    /**
+     * The entry point for the rate limiter for every request
+     *
+     * @return true if an incoming request does not violate the hourly and minute limits
+     *         false if any of the aforementioned limits are hit
+     */
     public boolean isRequestPermitted() {
         if (!isWithinHourlyLimit()) {
             LOGGER.info("Hourly limit hit, cannot proceed. Please try again later");
@@ -42,7 +50,7 @@ public class APIRateLimiter {
         }
         if (!isWithinMinuteLimit()) {
             LOGGER.info("Minute limit hit, cannot proceed. Please try again in a minute");
-            //maintaining sync between hr and min limits
+            //maintaining sync between hr and min windows
             long hourWindowStartTime = getWindowStartTime(hourWindow);
             hourWindow.put(hourWindowStartTime, hourWindow.get(hourWindowStartTime) - 1);
             return false;
