@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -23,7 +24,8 @@ public class BatchManager {
     private static ArrayList<Event> type2;
     private static ArrayList<Event> type3;
     private static ArrayList<Event> type4;
-    private boolean shouldStartEventTimer = true;
+
+    private static Map<EventType, Boolean> shouldCreateNewEventTimers = new ConcurrentHashMap<>();
 
     public static BatchManager getInstance() {
         if (batchManager == null) {
@@ -34,10 +36,24 @@ public class BatchManager {
                     type2 = new ArrayList<>();
                     type3 = new ArrayList<>();
                     type4 = new ArrayList<>();
+
+                    initTimerMap();
                 }
             }
         }
         return batchManager;
+    }
+
+    private static void initTimerMap() {
+        // todo: try a better way to init this map
+        shouldCreateNewEventTimers.put(EventType.E1, true);
+        shouldCreateNewEventTimers.put(EventType.E2, true);
+        shouldCreateNewEventTimers.put(EventType.E3, true);
+        shouldCreateNewEventTimers.put(EventType.E4, true);
+    }
+
+    private static void resetEventTypeShouldStartTimer(EventType eventType) {
+
     }
 
     // Events ingested will be put on the respective kind of events list
@@ -58,16 +74,16 @@ public class BatchManager {
         type4.addAll(events.stream().filter(type).collect(Collectors.toList()));
 
         if (type1.size() != 0) {
-            executorService.execute(new BatchProcessor(type1));
+            executorService.execute(new BatchProcessor(type1, shouldCreateNewEventTimers.get(EventType.E1),EventType.E1));
         }
         if (type2.size() != 0) {
-            executorService.execute(new BatchProcessor(type2));
+            executorService.execute(new BatchProcessor(type2, shouldCreateNewEventTimers.get(EventType.E2), EventType.E2));
         }
         if (type3.size() != 0) {
-            executorService.execute(new BatchProcessor(type3));
+            executorService.execute(new BatchProcessor(type3, shouldCreateNewEventTimers.get(EventType.E3), EventType.E3));
         }
         if (type4.size() != 0) {
-            executorService.execute(new BatchProcessor(type4));
+            executorService.execute(new BatchProcessor(type4, shouldCreateNewEventTimers.get(EventType.E4), EventType.E4));
         }
     }
 
@@ -75,20 +91,24 @@ public class BatchManager {
         private static final int BATCH_SIZE_LIMIT = 10;
 
         private List<Event> events;
+        private boolean shouldStartEventTimer;
+        private EventType eventType;
 
-        BatchProcessor(List<Event> events) {
+        BatchProcessor(List<Event> events, boolean shouldStartEventTimer, EventType eventType) {
             this.events = events;
+            this.shouldStartEventTimer = shouldStartEventTimer;
+            this.eventType = eventType;
         }
 
         public void run() {
-            processCurrentEventBatch();
+            processCurrentEventBatch(shouldStartEventTimer);
         }
 
-        private void processCurrentEventBatch() {
+        private void processCurrentEventBatch(boolean shouldStartEventTimer) {
             List<Event> remainingEvents = new ArrayList<>();
             List<Event> tempList;
-            if (BatchManager.getInstance().shouldStartEventTimer) {
-                this.flushAfterDuration();
+            if (shouldStartEventTimer) {
+                this.flushAfterDuration(this.eventType);
             }
             if (events.size() >= BATCH_SIZE_LIMIT) {
                 tempList = new ArrayList<>();
@@ -118,31 +138,26 @@ public class BatchManager {
         }
 
         private void flushEvents(List<Event> currentBatch) throws IOException {
-            OutputStream outputStream = new FileOutputStream(("src/main/resources/event1.log"), true);
-            for (Event event : currentBatch) {
-                outputStream.write(event.toString().getBytes());
-            }
-            outputStream.close();
+            new EventWriter().write(eventType, currentBatch);
             currentBatch.clear();
         }
 
-        private void flushAfterDuration() {
+        private void flushAfterDuration(EventType eventType) {
             //todo: read this value from application.properties file
-            BatchManager.getInstance().shouldStartEventTimer = false;
-
+            shouldCreateNewEventTimers.put(eventType, false);
             ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
             Runnable task = () -> {
                 System.out.println("Executing Task At " + System.nanoTime());
                 try {
                     this.flushEvents(this.events);
-                    BatchManager.getInstance().shouldStartEventTimer = true;
+                    shouldCreateNewEventTimers.put(eventType, true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             };
 
-            System.out.println("Submitting task at " + System.nanoTime() + " to be executed after 5 seconds.");
-            scheduledExecutorService.schedule(task, 15, TimeUnit.SECONDS);
+            System.out.println("Submitting task at " + System.nanoTime() + " to be executed after 30 seconds.");
+            scheduledExecutorService.schedule(task, 30, TimeUnit.SECONDS);
         }
     }
 }

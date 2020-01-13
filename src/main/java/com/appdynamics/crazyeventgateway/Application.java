@@ -21,4 +21,14 @@ public class Application {
         app.setDefaultProperties(Collections.singletonMap("server.port", "9000"));
         app.run(args);
     }
+
+    //todo: figure out request response
+    // todo: multiple event types testing
+    // todo: event writer
+    // todo : logging
+    // todo: app.properties
+    // todo: unit tests
+    // todo: javadocs
+    // todo: write a sensible response to sink
+    // todo: sleep
 }
