@@ -22,10 +22,10 @@ public class BatchManager {
     private static BatchManager batchManager;
 
     //Four lists, one for each type of event
-    private static ArrayList<AdTrackingEvent> type1;
-    private static ArrayList<AdTrackingEvent> type2;
-    private static ArrayList<AdTrackingEvent> type3;
-    private static ArrayList<AdTrackingEvent> type4;
+    private static List<AdTrackingEvent> type1;
+    private static List<AdTrackingEvent> type2;
+    private static List<AdTrackingEvent> type3;
+    private static List<AdTrackingEvent> type4;
 
     static int maxBatchSize;
     static long batchFlushTimeout;
@@ -45,10 +45,10 @@ public class BatchManager {
             synchronized (BatchManager.class) {
                 if (batchManager == null) {
                     batchManager = new BatchManager();
-                    type1 = new ArrayList<>();
-                    type2 = new ArrayList<>();
-                    type3 = new ArrayList<>();
-                    type4 = new ArrayList<>();
+                    type1 = new CopyOnWriteArrayList<>();
+                    type2 = new CopyOnWriteArrayList<>();
+                    type3 = new CopyOnWriteArrayList<>();
+                    type4 = new CopyOnWriteArrayList<>();
                     initTimerMap();
                     maxBatchSize = maxPermittedBatchSize;
                     batchFlushTimeout = flushDuration;

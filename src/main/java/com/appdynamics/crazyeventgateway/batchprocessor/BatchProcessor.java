@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,13 +37,13 @@ public class BatchProcessor implements Runnable {
     }
 
     private void processCurrentEventBatch() {
-        List<AdTrackingEvent> remainingAdTrackingEvents = new ArrayList<>();
+        List<AdTrackingEvent> remainingAdTrackingEvents = new CopyOnWriteArrayList<>();
         List<AdTrackingEvent> currentEventsToBeProcessed;
         if (shouldStartEventTimer) {
             this.flushEventsOnTimeout(this.eventType); // this spawns a new thread that starts a 15 second timer on the current batch
         }
         if (adTrackingEvents.size() >= maxBatchSize) { // checking if the incoming request exceeds the maximum permitted batch size
-            currentEventsToBeProcessed = new ArrayList<>(adTrackingEvents);
+            currentEventsToBeProcessed = new CopyOnWriteArrayList<>(adTrackingEvents);
             LOGGER.debug("Batch size limit hit. Partitioning batch");
             List<List<AdTrackingEvent>> batches = Lists.partition(currentEventsToBeProcessed, maxBatchSize);
             flushBatchesWhenLimitIsHit(remainingAdTrackingEvents, batches); //flush batch immediately when the max permitted batch size limit is hit
